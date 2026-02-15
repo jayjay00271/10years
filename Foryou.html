@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Decade of Love</title>
+    <style>
+        :root {
+            --romance-red: #a34e51;
+            --soft-cream: #fdfaf6;
+            --deep-text: #2d2d2d;
+            --gold-accent: #d4af37;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Georgia', serif;
+            color: var(--deep-text);
+            overflow-x: hidden;
+            background-color: var(--soft-cream);
+        }
+
+        /* Slideshow background */
+        .background-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .background-slideshow.show {
+            opacity: 1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(253, 250, 246, 0.88), rgba(253, 250, 246, 0.88));
+        }
+
+        /* Cover page */
+        #cover {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('photo1.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #cover h2 {
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+            font-weight: 300;
+        }
+
+        #cover .years {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 300;
+            font-style: italic;
+            margin: 20px 0;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.7);
+            color: var(--gold-accent);
+        }
+
+        #cover .tagline {
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            font-style: italic;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+            opacity: 0.95;
+        }
+
+        .enter-btn {
+            padding: 15px 45px;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid white;
+            color: white;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            transition: all 0.3s ease;
+            border-radius: 2px;
+            letter-spacing: 1px;
+        }
+
+        .enter-btn:hover {
+            background: white;
+            color: var(--romance-red);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .enter-btn:active {
+            transform: translateY(0);
+        }
+
+        .hide-cover {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+
+        /* Main content */
+        .main-content {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: clamp(80px, 15vh, 120px) 20px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1.5s ease, transform 1.5s ease;
+            min-height: 100vh;
+        }
+
+        .main-content.show-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: clamp(40px, 8vw, 80px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 60px;
+        }
+
+        .subtitle {
+            text-transform: uppercase;
+            letter-spacing: clamp(2px, 1vw, 4px);
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            margin-bottom: 10px;
+            opacity: 0.6;
+            font-weight: 400;
+        }
+
+        h1 {
+            font-weight: 300;
+            font-style: italic;
+            font-size: clamp(2.5rem, 7vw, 4rem);
+            color: var(--romance-red);
+            margin: 0 0 20px 0;
+            line-height: 1.2;
+        }
+
+        .decorative-line {
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold-accent), transparent);
+            margin: 30px auto;
+        }
+
+        .heart-divider {
+            color: var(--romance-red);
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin: 40px 0;
+            opacity: 0.8;
+        }
+
+        .letter {
+            font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+            line-height: 2;
+            padding: 0 5%;
+            color: #333;
+            text-align: left;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .letter p {
+            margin-bottom: 2em;
+        }
+
+        .letter p:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight {
+            font-weight: 600;
+            color: var(--romance-red);
+            position: relative;
+        }
+
+        .italic-quote {
+            font-style: italic;
+            font-size: 1.15em;
+            color: var(--romance-red);
+            margin-top: 2.5em;
+            padding: 20px;
+            border-left: 3px solid var(--gold-accent);
+            background: rgba(163, 78, 81, 0.05);
+        }
+
+        .signature {
+            margin-top: 60px;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: var(--romance-red);
+            font-style: italic;
+            font-weight: 300;
+        }
+
+        /* Gallery section */
+        .gallery-section {
+            margin-top: 80px;
+            padding-bottom: 60px;
+        }
+
+        .gallery-title {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            color: var(--romance-red);
+            font-style: italic;
+            font-weight: 300;
+            margin-bottom: 50px;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .photo-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            aspect-ratio: 1;
+        }
+
+        .photo-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .photo-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 30px 15px 15px;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .photo-item:hover .photo-caption {
+            opacity: 1;
+        }
+
+        /* Navigation dots */
+        .slideshow-nav {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .slideshow-nav.show {
+            opacity: 1;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            border: 2px solid white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+
+        @media (max-width: 768px) {
+            .letter {
+                text-align: justify;
+                padding: 0 5%;
+            }
+
+            .content-card {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+
+            .photo-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .gallery-section {
+                margin-top: 60px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .photo-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            .main-content {
+                padding: 40px 20px;
+            }
+
+            .content-card {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background slideshow -->
+    <div class="background-slideshow" id="backgroundSlideshow">
+        <div class="slide" style="background-image: url('photo1.jpg');"></div>
+        <div class="slide" style="background-image: url('photo2.jpg');"></div>
+        <div class="slide" style="background-image: url('photo3.jpg');"></div>
+        <div class="slide" style="background-image: url('photo4.jpg');"></div>
+        <div class="slide" style="background-image: url('photo5.jpg');"></div>
+        <div class="slide" style="background-image: url('photo6.jpg');"></div>
+        <div class="slide" style="background-image: url('photo7.jpg');"></div>
+        <div class="slide" style="background-image: url('photo8.jpg');"></div>
+        <div class="slide" style="background-image: url('photo9.jpg');"></div>
+        <div class="slide" style="background-image: url('photo10.jpg');"></div>
+    </div>
+
+    <!-- Navigation dots -->
+    <div class="slideshow-nav" id="slideshowNav">
+        <div class="nav-dot" onclick="goToSlide(0)"></div>
+        <div class="nav-dot" onclick="goToSlide(1)"></div>
+        <div class="nav-dot" onclick="goToSlide(2)"></div>
+        <div class="nav-dot" onclick="goToSlide(3)"></div>
+        <div class="nav-dot" onclick="goToSlide(4)"></div>
+        <div class="nav-dot" onclick="goToSlide(5)"></div>
+        <div class="nav-dot" onclick="goToSlide(6)"></div>
+        <div class="nav-dot" onclick="goToSlide(7)"></div>
+        <div class="nav-dot" onclick="goToSlide(8)"></div>
+        <div class="nav-dot" onclick="goToSlide(9)"></div>
+    </div>
+
+    <!-- Cover page -->
+    <div id="cover">
+        <h2>For You</h2>
+        <div class="years">10 Years</div>
+        <div class="tagline">A decade of patience, a lifetime of love</div>
+        <button class="enter-btn" onclick="revealMessage()">Open Our Story</button>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content" id="mainContent">
+        <div class="content-card">
+            <div class="subtitle">Belated Happy Valentine's Day</div>
+            <h1>Finally, Us.</h1>
+            
+            <div class="decorative-line"></div>
+
+            <div class="letter">
+                <p>
+                    They say patience is a virtue, but for me, it was simply the only choice. 
+                    Ever since our youth days, I already knew. My heart was settled long before 
+                    the world even noticed.
+                </p>
+                <p>
+                    It took <span class="highlight">10 years of courage</span> to bridge the distance and finally be here with you. 
+                    Looking back, I wouldn't change a single moment of that wait, because it led me 
+                    straight to you.
+                </p>
+                <p class="italic-quote">
+                    Thank you for being my past, my present, and my favorite future.
+                </p>
+            </div>
+
+            <div class="heart-divider">♥</div>
+            <div class="signature">— With all my love</div>
+        </div>
+
+        <!-- Photo Gallery -->
+        <div class="gallery-section">
+            <h2 class="gallery-title">Our Journey in Photos</h2>
+            <div class="photo-grid">
+                <div class="photo-item">
+                    <img src="2389f315-b6f2-43ed-b071-afa8e2d42332.jpg" alt="Our Memory 1">
+                    <div class="photo-caption">The beginning</div>
+                </div>
+                <div class="photo-item">
+                    <img src="a0bbd2bb-b141-4fd2-9026-583fed70230a.jpg" alt="Our Memory 2">
+                    <div class="photo-caption">Growing together</div>
+                </div>
+                <div class="photo-item">
+                    <img src="8aed8bff-0946-4d5a-8822-765b2cbd1512.jpg" alt="Our Memory 3">
+                    <div class="photo-caption">Special moments</div>
+                </div>
+                <div class="photo-item">
+                    <img src="db1a13cd-c0e9-44cf-a85b-7879e73aba43.jpg" alt="Our Memory 4">
+                    <div class="photo-caption">Adventures</div>
+                </div>
+                <div class="photo-item">
+                    <img src="0c58fa1c-f6d1-411c-984a-6314e4f4212f.jpg" alt="Our Memory 5">
+                    <div class="photo-caption">Laughter & joy</div>
+                </div>
+                <div class="photo-item">
+                    <img src="db1a13cd-c0e9-44cf-a85b-7879e73aba43.jpg" alt="Our Memory 6">
+                    <div class="photo-caption">Cherished times</div>
+                </div>
+                <div class="photo-item">
+                    <img src="d1b97cae-5a3b-4d77-987b-0da01d75f127.jpg" alt="Our Memory 7">
+                    <div class="photo-caption">Beautiful days</div>
+                </div>
+                <div class="photo-item">
+                    <img src="ea6736de-cf66-4a90-a911-c491f8d04796.jpg" alt="Our Memory 8">
+                    <div class="photo-caption">Making memories</div>
+                </div>
+                <div class="photo-item">
+                    <img src="df228b5e-2ab2-4186-92b7-7eaac2876e92.jpg" alt="Our Memory 9">
+                    <div class="photo-caption">Our story</div>
+                </div>
+                <div class="photo-item">
+                    <img src="9050baf4-0d41-4312-b3ba-37d28d2c75a0.jpg" alt="Our Memory 10">
+                    <div class="photo-caption">Forever us</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        let slideInterval;
+        const slides = document.querySelectorAll('.slide');
+        const navDots = document.querySelectorAll('.nav-dot');
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                navDots[i].classList.remove('active');
+            });
+            
+            currentSlide = index;
+            if (currentSlide >= slides.length) currentSlide = 0;
+            if (currentSlide < 0) currentSlide = slides.length - 1;
+            
+            slides[currentSlide].classList.add('active');
+            navDots[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function goToSlide(index) {
+            clearInterval(slideInterval);
+            showSlide(index);
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function startSlideshow() {
+            showSlide(0);
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function revealMessage() {
+            document.getElementById('cover').classList.add('hide-cover');
+            
+            setTimeout(() => {
+                document.getElementById('backgroundSlideshow').classList.add('show');
+                document.getElementById('slideshowNav').classList.add('show');
+                startSlideshow();
+            }, 300);
+            
+            setTimeout(() => {
+                document.getElementById('mainContent').classList.add('show-content');
+            }, 800);
+        }
+
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+    </script>
+
+</body>
+</html>
